@@ -1,14 +1,9 @@
-default: pre-build orm halfscale rgb
+default: pre-build rgb orm rescale recursive
 
 pre-build:
 	go mod tidy
 	go mod download
 	mkdir -p bin
-orm: pre-build
-	go build -o bin/extract-orm.exe ./cmd/extract-orm
-
-halfscale: pre-build
-	go build -o bin/halfscale.exe ./cmd/halfscale
 
 rgb: pre-build
 	go build -o bin/rgb/clean-red.exe ./cmd/clean-red
@@ -18,3 +13,12 @@ rgb: pre-build
 	go build -o bin/rgb/just-green.exe ./cmd/just-green
 	go build -o bin/rgb/just-blue.exe ./cmd/just-blue
 	go build -o bin/rgb/invert-color.exe ./cmd/invert-color
+
+orm: pre-build
+	go build -o bin/extract-orm.exe ./cmd/extract-orm
+
+rescale: pre-build
+	go build -o bin/rescale.exe ./cmd/rescale
+
+recursive: pre-build
+	go build -o bin/recursive.exe ./cmd/recursive

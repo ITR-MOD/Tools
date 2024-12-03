@@ -21,7 +21,6 @@ func ParsePathArgs() []string {
 		}
 		if _, err := os.Stat(currentArg); err == nil {
 			args = append(args, currentArg)
-			fmt.Println("Added", currentArg)
 			currentArg = ""
 		}
 	}

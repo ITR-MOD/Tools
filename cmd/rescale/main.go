@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"image"
 	"image/png"
@@ -12,7 +13,7 @@ import (
 	"github.com/nfnt/resize"
 )
 
-func downscaleImage(inputPath string, scaleFactor float64) {
+func downscaleImage(inputPath string, scaleFactor float64, overwrite *bool) {
 	// Open the input image
 	file, err := os.Open(inputPath)
 	if err != nil {
@@ -34,7 +35,11 @@ func downscaleImage(inputPath string, scaleFactor float64) {
 	resizedImg := resize.Resize(newWidth, newHeight, img, resize.Lanczos3)
 
 	// Create the output file
-	outputPath := inputPath[:len(inputPath)-4] + ".ds.png"
+	outputPath := fmt.Sprintf("%s.ds_%.2f.png", inputPath, scaleFactor)
+	if *overwrite {
+		outputPath = fmt.Sprintf("%s.png", inputPath)
+	}
+
 	outFile, err := os.Create(outputPath)
 	if err != nil {
 		log.Fatal(err)
@@ -52,22 +57,29 @@ func downscaleImage(inputPath string, scaleFactor float64) {
 }
 
 func main() {
-	// Ensure the right number of arguments
-	if len(os.Args) <= 2 {
-		fmt.Println("Usage: go run script.go path/to-image.png")
+	// Define and parse flags
+	scaleFactor := flag.Float64("scale", 0.5, "Scaling factor (0.0 < scale <= 1.0)")
+	overwrite := flag.Bool("overwrite", false, "Overwrite the original image")
+	flag.Parse()
+
+	// Validate the scaling factor
+	if *scaleFactor <= 0 || *scaleFactor > 1 {
+		log.Fatal("Error: scale must be a positive number less than or equal to 1")
+	}
+
+	// Remaining arguments are file paths
+	args := flag.Args()
+	if len(args) == 0 {
+		fmt.Println("Usage: go run script.go -scale=0.5 path/to-image1.png [path/to-image2.png ...]")
 		return
 	}
 
-	// Parse the arguments to accommodate spaces in the file path
-	args := libs.ParsePathArgs()
-
 	for _, arg := range args {
-		if libs.IsPathFile(arg) == false {
+		if !libs.IsPathFile(arg) {
 			fmt.Printf("Invalid file path: %s\n", arg)
 			continue
 		}
-		// Downscale the image by 50%
-		downscaleImage(arg, 0.5)
-
+		// Downscale the image with the specified scale factor
+		downscaleImage(arg, *scaleFactor, overwrite)
 	}
 }
