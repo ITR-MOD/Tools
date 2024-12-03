@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"image/png"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,19 +23,12 @@ func main() {
 		if !libs.IsPathFile(filePath) {
 			continue
 		}
-		// Open the ORM texture file
-		file, err := os.Open(filePath)
-		if err != nil {
-			fmt.Printf("Failed to open file: %s\n", err)
-			return
-		}
-		defer file.Close()
 
-		// Decode the image
-		img, _, err := image.Decode(file)
+		// Open the ORM texture file using OpenImage
+		img, err := libs.ReadImage(filePath)
 		if err != nil {
-			fmt.Printf("Failed to decode image: %s\n", err)
-			return
+			fmt.Printf("Failed to open image %s: %s\n", filePath, err)
+			continue
 		}
 
 		// Get base name and directory
@@ -60,28 +52,20 @@ func main() {
 			}
 		}
 
-		// Save each channel as a separate image
-		saveImage(filepath.Join(dir, baseName+".occlu.png"), occlusion)
-		saveImage(filepath.Join(dir, baseName+".rough.png"), roughness)
-		saveImage(filepath.Join(dir, baseName+".metal.png"), metallic)
+		// Save each channel as a separate image using libs.WriteImage
+		if err := libs.WriteImage(occlusion, filepath.Join(dir, baseName+".occlu.png")); err != nil {
+			fmt.Printf("Failed to save Occlusion image: %s\n", err)
+		}
+		if err := libs.WriteImage(roughness, filepath.Join(dir, baseName+".rough.png")); err != nil {
+			fmt.Printf("Failed to save Roughness image: %s\n", err)
+		}
+		if err := libs.WriteImage(metallic, filepath.Join(dir, baseName+".metal.png")); err != nil {
+			fmt.Printf("Failed to save Metallic image: %s\n", err)
+		}
 
 		fmt.Println("Textures successfully unpacked:")
 		fmt.Printf("- Occlusion: %s.occlu.png\n", baseName)
 		fmt.Printf("- Roughness: %s.rough.png\n", baseName)
 		fmt.Printf("- Metallic: %s.metal.png\n", baseName)
-	}
-}
-
-func saveImage(filePath string, img image.Image) {
-	outFile, err := os.Create(filePath)
-	if err != nil {
-		fmt.Printf("Failed to save image %s: %s\n", filePath, err)
-		return
-	}
-	defer outFile.Close()
-
-	err = png.Encode(outFile, img)
-	if err != nil {
-		fmt.Printf("Failed to encode image %s: %s\n", filePath, err)
 	}
 }
