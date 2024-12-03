@@ -41,6 +41,18 @@ func RemoveBlueChannel(img image.Image) image.Image {
 	})
 }
 
+// Function to invert the colors of an image
+func InvertColors(img image.Image) image.Image {
+	return processImage(img, func(r, g, b, a uint32) color.RGBA {
+		return color.RGBA{
+			R: 255 - uint8(r>>8),
+			G: 255 - uint8(g>>8),
+			B: 255 - uint8(b>>8),
+			A: uint8(a >> 8),
+		}
+	})
+}
+
 // Generic image processing function
 func processImage(img image.Image, modifyColor func(r, g, b, a uint32) color.RGBA) image.Image {
 	// Create a new RGBA image to store the modified pixels
