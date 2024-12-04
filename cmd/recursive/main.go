@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/ITR-MOD/tools/libs"
 )
 
 // processImages walks through the directory structure and processes image files.
-func processImages(exePath, root string) error {
+func processImages(exePath string, exeArgs []string, root string) error {
 	return filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err // Return the error to stop walking on fatal errors.
@@ -26,14 +27,16 @@ func processImages(exePath, root string) error {
 			fmt.Printf("Processing image: %s\n", path)
 			fmt.Println("Running executable:", exePath)
 
-			// // Execute the provided executable
-			// cmd := exec.Command(exePath, path)
-			// cmd.Stdout = os.Stdout
-			// cmd.Stderr = os.Stderr
+			// Build the command with the executable and arguments
+			args := append(exeArgs, path) // Pass the image file path as the last argument
+			cmd := exec.Command(exePath, args...)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
 
-			// if err := cmd.Run(); err != nil {
-			// 	fmt.Printf("Error processing image %s: %v\n", path, err)
-			// }
+			// Run the executable
+			if err := cmd.Run(); err != nil {
+				fmt.Printf("Error processing image %s: %v\n", path, err)
+			}
 		}
 
 		return nil
@@ -42,24 +45,31 @@ func processImages(exePath, root string) error {
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Println("Usage: program.exe <exe> <root dir>")
+		fmt.Println("Usage: program.exe <exe> <root dir> [args...]")
 		os.Exit(1)
 	}
 
 	exePath := os.Args[1]
 	rootDir := os.Args[2]
+	exeArgs := os.Args[3:] // Capture additional arguments to pass to the executable
 
-	if _, err := os.Stat(exePath); os.IsNotExist(err) {
-		fmt.Printf("Executable does not exist: %s\n", exePath)
+	rootDir = filepath.Clean(rootDir)
+
+	// Resolve the full path of the executable
+	fullExePath, err := exec.LookPath(exePath)
+	if err != nil {
+		fmt.Printf("Executable not found: %s\n", exePath)
 		os.Exit(1)
 	}
 
+	// Check if the root directory exists
 	if _, err := os.Stat(rootDir); os.IsNotExist(err) {
 		fmt.Printf("Directory does not exist: %s\n", rootDir)
 		os.Exit(1)
 	}
 
-	if err := processImages(exePath, rootDir); err != nil {
+	// Process images
+	if err := processImages(fullExePath, exeArgs, rootDir); err != nil {
 		fmt.Printf("Error walking the directory: %v\n", err)
 		os.Exit(1)
 	}

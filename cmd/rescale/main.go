@@ -35,9 +35,9 @@ func downscaleImage(inputPath string, scaleFactor float64, overwrite *bool) {
 	resizedImg := resize.Resize(newWidth, newHeight, img, resize.Lanczos3)
 
 	// Create the output file
-	outputPath := fmt.Sprintf("%s.ds_%.2f.png", inputPath, scaleFactor)
+	outputPath := fmt.Sprintf("%s.ds_%.2f", inputPath, scaleFactor)
 	if *overwrite {
-		outputPath = fmt.Sprintf("%s.png", inputPath)
+		outputPath = fmt.Sprintf("%s", inputPath)
 	}
 
 	outFile, err := os.Create(outputPath)
