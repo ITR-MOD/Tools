@@ -1,4 +1,4 @@
-module github.com/ITR-MOD/tools
+module github.com/ITR-MOD/Tools
 
 go 1.23.2
 

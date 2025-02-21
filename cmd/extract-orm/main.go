@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ITR-MOD/tools/libs"
+	"github.com/ITR-MOD/Tools/libs"
 )
 
 func main() {

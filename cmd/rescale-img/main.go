@@ -8,8 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ITR-MOD/tools/libs"
-
+	"github.com/ITR-MOD/Tools/libs"
 	"github.com/nfnt/resize"
 )
 

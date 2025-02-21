@@ -10,7 +10,7 @@
    - Use this command:  
 
      ```sh
-     go install github.com/ITR-MOD/tools/cmd/extract-orm@latest
+     go install github.com/ITR-MOD/Tools/cmd/extract-orm@latest
      ```
 
 ---

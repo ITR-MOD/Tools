@@ -7,8 +7,10 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/ITR-MOD/tools/libs"
+	"github.com/ITR-MOD/Tools/libs"
 )
+
+// TODO, make this not only work on images
 
 // processImages walks through the directory structure and processes image files.
 func processImages(exePath string, exeArgs []string, root string) error {
